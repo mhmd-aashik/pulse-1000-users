@@ -15,6 +15,13 @@
       "when": 1787727991619,
       "tag": "0001_regular_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787729193814,
+      "tag": "0002_small_swordsman",
+      "breakpoints": true
     }
   ]
 }

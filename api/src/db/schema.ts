@@ -1,6 +1,7 @@
 import {
   integer,
   pgTable,
+  primaryKey,
   serial,
   timestamp,
   varchar,
@@ -33,3 +34,23 @@ export const posts = pgTable('posts', {
 
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const follows = pgTable(
+  'follows',
+  {
+    followerId: integer('follower_id')
+      .notNull()
+      .references(() => users.id),
+
+    followingId: integer('following_id')
+      .notNull()
+      .references(() => users.id),
+
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.followerId, table.followingId],
+    }),
+  ],
+);
