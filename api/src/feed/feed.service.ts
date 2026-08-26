@@ -2,10 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { and, desc, eq, lt, or } from 'drizzle-orm';
 import { db } from '../db/db';
 import { follows, posts } from '../db/schema';
+import { redis } from 'src/redis/redis';
 
 @Injectable()
 export class FeedService {
   async getFeed(userId: number, limit = 20, cursor?: string) {
+    const cacheKey = `feed:${userId}:limit:${limit}`;
+
+    if (!cursor) {
+      const cachedFeed = await redis.get(cacheKey);
+
+      if (cachedFeed) {
+        console.log('CACHE HIT');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return JSON.parse(cachedFeed);
+      }
+
+      console.log('CACHE MISS');
+    }
+
     const conditions = [eq(follows.followerId, userId)];
 
     if (cursor) {
@@ -56,10 +71,16 @@ export class FeedService {
           ).toString('base64')
         : null;
 
-    return {
+    const response = {
       data,
       nextCursor,
       hasMore,
     };
+
+    if (!cursor) {
+      await redis.set(cacheKey, JSON.stringify(response), 'EX', 60);
+    }
+
+    return response;
   }
 }

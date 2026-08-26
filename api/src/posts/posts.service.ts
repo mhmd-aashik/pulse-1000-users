@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { db } from 'src/db/db';
 import { desc, eq } from 'drizzle-orm';
-import { posts, users } from 'src/db/schema';
+import { follows, posts, users } from 'src/db/schema';
+import { redis } from 'src/redis/redis';
 
 @Injectable()
 export class PostsService {
@@ -20,6 +21,21 @@ export class PostsService {
         userId: dto.userId,
       })
       .returning();
+
+    const followers = await db
+      .select({
+        followerId: follows.followerId,
+      })
+      .from(follows)
+      .where(eq(follows.followingId, dto.userId));
+
+    const keys = followers.map(
+      (follower) => `feed:${follower.followerId}:limit:20`,
+    );
+
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
 
     return result[0];
   }
