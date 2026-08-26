@@ -1,31 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { db } from '../db/db';
+import { users } from '../db/schema';
 
 @Injectable()
 export class UsersService {
-  private users = [
-    {
-      id: 1,
-      name: 'Ahamed',
-      username: 'ahamed',
-    },
-  ];
-
-  findAll() {
-    return this.users;
+  async findAll() {
+    return db.select().from(users);
   }
 
-  findOne(id: number) {
-    return this.users.find((user) => user.id === id);
+  async findOne(id: number) {
+    const result = await db.select().from(users).where(eq(users.id, id));
+
+    return result[0];
   }
 
-  create(user: { name: string; username: string }) {
-    const newUser = {
-      id: this.users.length + 1,
-      ...user,
-    };
+  async create(user: { name: string; username: string }) {
+    const result = await db
+      .insert(users)
+      .values({
+        name: user.name,
+        username: user.username,
+      })
+      .returning();
 
-    this.users.push(newUser);
-
-    return newUser;
+    return result[0];
   }
 }
