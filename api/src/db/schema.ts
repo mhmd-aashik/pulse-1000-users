@@ -1,4 +1,5 @@
 import {
+  index,
   integer,
   pgTable,
   primaryKey,
@@ -21,19 +22,26 @@ export const users = pgTable('users', {
     .unique(),
 });
 
-export const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
+export const posts = pgTable(
+  'posts',
+  {
+    id: serial('id').primaryKey(),
 
-  content: varchar('content', {
-    length: 500,
-  }).notNull(),
+    content: varchar('content', {
+      length: 500,
+    }).notNull(),
 
-  userId: integer('user_id')
-    .notNull()
-    .references(() => users.id),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
 
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('post_user_created_at_idx').on(table.userId),
+    index('posts_user_created_at_idx').on(table.userId, table.createdAt),
+  ],
+);
 
 export const follows = pgTable(
   'follows',
@@ -52,5 +60,7 @@ export const follows = pgTable(
     primaryKey({
       columns: [table.followerId, table.followingId],
     }),
+    index('follows_follower_id_idx').on(table.followerId),
+    index('follows_following_id_idx').on(table.followingId),
   ],
 );
