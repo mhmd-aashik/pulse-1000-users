@@ -1,4 +1,10 @@
-import { pgTable, serial, varchar } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  pgTable,
+  serial,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -12,4 +18,18 @@ export const users = pgTable('users', {
   })
     .notNull()
     .unique(),
+});
+
+export const pots = pgTable('posts', {
+  id: serial('id').primaryKey(),
+
+  content: varchar('content', {
+    length: 500,
+  }).notNull(),
+
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
