@@ -20,7 +20,7 @@ export const users = pgTable('users', {
     .unique(),
 });
 
-export const pots = pgTable('posts', {
+export const posts = pgTable('posts', {
   id: serial('id').primaryKey(),
 
   content: varchar('content', {
