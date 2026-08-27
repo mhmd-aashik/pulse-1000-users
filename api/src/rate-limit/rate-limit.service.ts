@@ -10,13 +10,11 @@ export class RateLimitService {
       await redis.expire(key, 60);
     }
 
-    if (count > 100) {
-      if (count > 100) {
-        throw new HttpException(
-          'Too many requests',
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
-      }
+    if (count > 5) {
+      throw new HttpException(
+        'Too many requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     return count;

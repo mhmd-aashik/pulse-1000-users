@@ -4,9 +4,24 @@ import { db } from '../db/db';
 import { follows, posts } from '../db/schema';
 import { redis } from 'src/redis/redis';
 
+type FeedResponse = {
+  data: {
+    id: number;
+    content: string;
+    userId: number;
+    createdAt: Date;
+  }[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
 @Injectable()
 export class FeedService {
-  async getFeed(userId: number, limit = 20, cursor?: string) {
+  async getFeed(
+    userId: number,
+    limit = 20,
+    cursor?: string,
+  ): Promise<FeedResponse> {
     const cacheKey = `feed:${userId}:limit:${limit}`;
 
     if (!cursor) {
@@ -14,8 +29,7 @@ export class FeedService {
 
       if (cachedFeed) {
         console.log('CACHE HIT');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return JSON.parse(cachedFeed);
+        return JSON.parse(cachedFeed) as FeedResponse;
       }
 
       console.log('CACHE MISS');

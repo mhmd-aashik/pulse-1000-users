@@ -13,9 +13,9 @@ export class FeedController {
   @Get(':userId')
   async getFeed(
     @Param('userId') userId: string,
+    @Req() req: Request,
     @Query('limit') limit?: string,
     @Query('cursor') cursor?: string,
-    @Req() req: Request,
   ) {
     const ip = req.ip;
 
