@@ -7,6 +7,7 @@ import { CreateFollowDto } from './dto/create-follow.dto';
 import { db } from 'src/db/db';
 import { follows, users } from 'src/db/schema';
 import { and, eq } from 'drizzle-orm';
+import { redis } from 'src/redis/redis';
 
 @Injectable()
 export class FollowsService {
@@ -48,6 +49,8 @@ export class FollowsService {
     }
 
     const result = await db.insert(follows).values(dto).returning();
+
+    await redis.del(`feed:${dto.followerId}:limit:20`);
 
     return result[0];
   }
