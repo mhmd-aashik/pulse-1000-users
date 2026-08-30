@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { FeedService } from './feed.service';
 import { RateLimitService } from 'src/rate-limit/rate-limit.service';
+import { KeycloakAuthGuard } from 'src/auth/keycloak-auth.guard';
 
 @Controller('feed')
 export class FeedController {
@@ -9,6 +10,7 @@ export class FeedController {
     private readonly rateLimitService: RateLimitService,
   ) {}
 
+  @UseGuards(KeycloakAuthGuard)
   @Get(':userId')
   async getFeed(
     @Param('userId') userId: string,
